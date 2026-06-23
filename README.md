@@ -29,14 +29,38 @@ Browser
 
 The Next.js API route (`/api/chat`) acts as a secure proxy — the backend URL and API key never leave the server.
 
+## Configuration
+
+The app is configured via environment variables. Copy `.env.example` to `.env.local` and fill in your values:
+
+```bash
+cp .env.example .env.local
+```
+
+| Variable | Description |
+|---|---|
+| `AGENT_DEPLOYMENT_URL` | Full URL of the RAG agent query endpoint |
+| `AGENT_DEPLOYMENT_API_KEY` | Hopsworks API key (`Authorization: ApiKey <key>`) |
+
+`.env.local` is gitignored and never committed. In production (Docker, Kubernetes, etc.) set these as regular environment variables — `.env.local` is not required.
+
+Example `.env.local`:
+
+```
+AGENT_DEPLOYMENT_URL=http://<host>/v1/<project>/<agent-name>/query
+AGENT_DEPLOYMENT_API_KEY=your-api-key-here
+```
+
+The server will throw a clear error at startup if either variable is missing.
+
 ## RAG Backend
 
 The agent is a Hopsworks KServe deployment exposing a FastAPI service:
 
 | Field | Value |
 |---|---|
-| Endpoint | `POST /v1/g2/ragbenchlcagentlangchain/query` |
-| Auth | `Authorization: ApiKey <key>` |
+| Endpoint | `POST $AGENT_DEPLOYMENT_URL` |
+| Auth | `Authorization: ApiKey $AGENT_DEPLOYMENT_API_KEY` |
 | Request | `{ "prompt": "...", "session_id": "..." }` (`session_id` omitted on first turn) |
 | Response | `{ "answer": "...", "sources": [...], "session_id": "..." }` |
 
@@ -52,6 +76,7 @@ Sources are arXiv papers returned as `{ title, doc_id, score }` and linked to `h
 ### Install and run
 
 ```bash
+cp .env.example .env.local   # configure your endpoint and API key
 npm install
 npm run dev
 ```
@@ -93,5 +118,6 @@ app/
     useRagChat.ts         manages messages, conversations, session IDs,
                           and localStorage persistence
   globals.css             Tailwind v4 + shadcn/ui CSS variable tokens
+.env.example              template — copy to .env.local to configure
 global.d.ts               JSX namespace shim for react-markdown / React 19 compat
 ```
