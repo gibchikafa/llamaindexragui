@@ -5,7 +5,10 @@ const hasHopsworksEnv =
   Boolean(process.env.HOPSWORKS_JOB_NAME);
 
 const port = process.env.PORT || process.env.APP_PORT || "3000";
-const args = hasHopsworksEnv ? ["start", "-p", port] : ["dev", "-p", port];
+const hostname = process.env.HOST || "0.0.0.0";
+const args = hasHopsworksEnv
+  ? ["start", "-H", hostname, "-p", port]
+  : ["dev", "-H", hostname, "-p", port];
 
 const child = spawn("next", args, {
   stdio: "inherit",
