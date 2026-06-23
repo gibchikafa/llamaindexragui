@@ -46,6 +46,8 @@ cp .env.example .env.local
 `.env.local` is gitignored and never committed. In production (Docker, Kubernetes, etc.) set these as regular environment variables — `.env.local` is not required.
 
 > **Subpath deployments (Hopsworks / reverse proxy):** the app must know its public mount before the bundle is rendered. In Hopsworks it now derives the mount from `HOPSWORKS_PROJECT_NAME` and `HOPSWORKS_JOB_NAME`; you can still override it with `NEXT_PUBLIC_BASE_PATH` if needed. If the bundle is built for `/` while the app is mounted under `/hopsworks-api/pythonapp/...`, the JS chunks will 404 and React will not hydrate.
+>
+> Hopsworks launches the app with `npm run dev`, and this repository switches that script to `next start` automatically when the Hopsworks env vars are present so the deployed app serves the production bundle instead of the dev server.
 
 Example `.env.local`:
 
