@@ -39,16 +39,16 @@ cp .env.example .env.local
 
 | Variable | Description |
 |---|---|
-| `AGENT_DEPLOYMENT_URL` | Full URL of the RAG agent query endpoint |
-| `AGENT_DEPLOYMENT_API_KEY` | Hopsworks API key (`Authorization: ApiKey <key>`) |
+| `LLAMA_INDEX_AGENT_DEPLOYMENT_URL` | Full URL of the RAG agent query endpoint |
+| `LLAMA_INDEX_AGENT_DEPLOYMENT_API_KEY` | Hopsworks API key (`Authorization: ApiKey <key>`) |
 
 `.env.local` is gitignored and never committed. In production (Docker, Kubernetes, etc.) set these as regular environment variables — `.env.local` is not required.
 
 Example `.env.local`:
 
 ```
-AGENT_DEPLOYMENT_URL=http://<host>/v1/<project>/<agent-name>/query
-AGENT_DEPLOYMENT_API_KEY=your-api-key-here
+LLAMA_INDEX_AGENT_DEPLOYMENT_URL=http://<host>/v1/<project>/<agent-name>/query
+LLAMA_INDEX_AGENT_DEPLOYMENT_API_KEY=your-api-key-here
 ```
 
 The server will throw a clear error at startup if either variable is missing.
@@ -59,8 +59,8 @@ The agent is a Hopsworks KServe deployment exposing a FastAPI service:
 
 | Field | Value |
 |---|---|
-| Endpoint | `POST $AGENT_DEPLOYMENT_URL` |
-| Auth | `Authorization: ApiKey $AGENT_DEPLOYMENT_API_KEY` |
+| Endpoint | `POST $LLAMA_INDEX_AGENT_DEPLOYMENT_URL` |
+| Auth | `Authorization: ApiKey $LLAMA_INDEX_AGENT_DEPLOYMENT_API_KEY` |
 | Request | `{ "prompt": "...", "session_id": "..." }` (`session_id` omitted on first turn) |
 | Response | `{ "answer": "...", "sources": [...], "session_id": "..." }` |
 

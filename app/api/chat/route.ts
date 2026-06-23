@@ -8,8 +8,8 @@ function requireEnv(name: string): string {
   return value;
 }
 
-const BACKEND_URL = requireEnv("AGENT_DEPLOYMENT_URL");
-const API_KEY = requireEnv("AGENT_DEPLOYMENT_API_KEY");
+const BACKEND_URL = requireEnv("LLAMA_INDEX_AGENT_DEPLOYMENT_URL");
+const API_KEY = requireEnv("LLAMA_INDEX_AGENT_DEPLOYMENT_API_KEY");
 
 export async function POST(req: NextRequest) {
   const { prompt, session_id } = await req.json();
