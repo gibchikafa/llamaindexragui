@@ -8,6 +8,10 @@
     "start": "next start"
   },
   "dependencies": {
+    "@ai-sdk/react": "^3.0.210",
+    "@llamaindex/chat-ui": "^0.6.1",
+    "ai": "^6.0.208",
+    "framer-motion": "^12.40.0",
     "next": "16.2.9",
     "react": "19.2.4",
     "react-dom": "19.2.4"
@@ -17,6 +21,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "playwright": "^1.61.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

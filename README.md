@@ -1,36 +1,97 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LlamaIndex RAG UI
+
+A ChatGPT-style chat interface built with [Next.js](https://nextjs.org) and [`@llamaindex/chat-ui`](https://github.com/run-llama/chat-ui) for a Hopsworks-deployed RAG (Retrieval-Augmented Generation) agent.
+
+## Features
+
+- **ChatGPT-style layout** — collapsible sidebar with conversation history, centred empty state, and a pinned bottom input bar
+- **Markdown rendering** — assistant responses rendered with full markdown support (bold, lists, code blocks, LaTeX)
+- **Source cards** — each response displays the retrieved papers as clickable cards linking to their arXiv page, with relevance scores
+- **Session continuity** — the backend `session_id` is captured after the first message and sent with every follow-up in the same conversation, so the agent maintains context across turns
+- **Persistent history** — conversations are saved to `localStorage` so they survive page refreshes (per-browser, no login required)
+- **Collapsible sidebar** — hide/show the conversation list to maximise reading space
+
+## Architecture
+
+```
+Browser
+  └── Next.js App (App Router)
+        ├── /app/page.tsx                  — root page
+        ├── /app/layout.tsx                — global layout + fonts
+        ├── /app/globals.css               — Tailwind v4 theme tokens
+        ├── /app/components/
+        │     ├── chat.tsx                 — full layout: sidebar + chat area
+        │     └── sidebar.tsx              — conversation list + new-chat button
+        ├── /app/hooks/
+        │     └── useRagChat.ts            — ChatHandler implementation + localStorage persistence
+        └── /app/api/chat/route.ts         — server-side proxy to the RAG backend
+```
+
+The Next.js API route (`/api/chat`) acts as a secure proxy — the backend URL and API key never leave the server.
+
+## RAG Backend
+
+The agent is a Hopsworks KServe deployment exposing a FastAPI service:
+
+| Field | Value |
+|---|---|
+| Endpoint | `POST /v1/g2/ragbenchlcagentlangchain/query` |
+| Auth | `Authorization: ApiKey <key>` |
+| Request | `{ "prompt": "...", "session_id": "..." }` (`session_id` omitted on first turn) |
+| Response | `{ "answer": "...", "sources": [...], "session_id": "..." }` |
+
+Sources are arXiv papers returned as `{ title, doc_id, score }` and linked to `https://arxiv.org/abs/<doc_id>`.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- npm
+
+### Install and run
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Production build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+To expose on the network:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm start -- -H 0.0.0.0 -p 3000
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Tech Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Package | Purpose |
+|---|---|
+| `next` 16 | App framework (App Router, Turbopack) |
+| `@llamaindex/chat-ui` | Chat UI primitives (`ChatSection`, `ChatInput`, `MarkdownPartUI`, …) |
+| `tailwindcss` v4 | Styling |
+| `framer-motion` | Animations (used internally by chat-ui) |
+| `lucide-react` | Icons |
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+app/
+  api/chat/route.ts       proxy to backend; injects API key server-side
+  components/
+    chat.tsx              top-level layout, message list, source cards
+    sidebar.tsx           collapsible sidebar with conversation history
+  hooks/
+    useRagChat.ts         manages messages, conversations, session IDs,
+                          and localStorage persistence
+  globals.css             Tailwind v4 + shadcn/ui CSS variable tokens
+global.d.ts               JSX namespace shim for react-markdown / React 19 compat
+```
