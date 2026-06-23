@@ -2,10 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 
 type ApiSource = { title: string; doc_id: string; score: number };
 
-const BACKEND_URL =
-  "http://10.114.123.120/v1/g2/ragbenchlcagentlangchain/query";
-const API_KEY =
-  "a1ngnWa8v1mJqJxg.W5Trug6KRhygc8oNx0EHCdjqExcxxST68ib4Sb6fKhgfuiGa47EOKjR8N8gqGeDa";
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`${name} must be set in .env.local`);
+  return value;
+}
+
+const BACKEND_URL = requireEnv("RAG_BACKEND_URL");
+const API_KEY = requireEnv("RAG_API_KEY");
 
 export async function POST(req: NextRequest) {
   const { prompt, session_id } = await req.json();
