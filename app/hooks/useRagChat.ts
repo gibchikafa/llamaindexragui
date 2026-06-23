@@ -13,14 +13,6 @@ export interface Conversation {
 
 const STORAGE_KEY = "rag-conversations";
 
-function getApiPath(): string {
-  if (typeof window === "undefined") return "/api/chat";
-  const pathname = window.location.pathname.endsWith("/")
-    ? window.location.pathname
-    : `${window.location.pathname}/`;
-  return `${pathname}api/chat`;
-}
-
 function loadConversations(): Conversation[] {
   if (typeof window === "undefined") return [];
   try {
@@ -122,7 +114,7 @@ export function useRagChat(): RagChatReturn {
       setStatus("submitted");
 
       try {
-        const res = await fetch(getApiPath(), {
+        const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

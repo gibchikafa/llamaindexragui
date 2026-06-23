@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import {
   ChatSection,
   ChatMessage,
+  ChatInput,
   MarkdownPartUI,
   useChatUI,
   type MessagePart,
@@ -13,70 +14,18 @@ import { useRagChat } from "@/app/hooks/useRagChat";
 import { Sidebar } from "@/app/components/sidebar";
 
 function ChatInputBar({ placeholder = "Ask anything" }: { placeholder?: string }) {
-  const { sendMessage, isLoading } = useChatUI();
-  const [draft, setDraft] = useState("");
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const resizeTextarea = () => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    textarea.style.height = "auto";
-    const nextHeight = Math.min(Math.max(textarea.scrollHeight, 48), 128);
-    textarea.style.height = `${nextHeight}px`;
-  };
-
-  const submit = async () => {
-    const prompt = draft.trim();
-    if (!prompt || isLoading) return;
-
-    const message = {
-      id: crypto.randomUUID(),
-      role: "user" as const,
-      parts: [{ type: "text" as const, text: draft }],
-    };
-
-    setDraft("");
-    await sendMessage(message);
-  };
-
   return (
-    <form
-      className="relative flex items-end gap-2 rounded-3xl border border-zinc-200 bg-white px-4 py-3 shadow-sm focus-within:border-zinc-300 focus-within:shadow-md transition-shadow"
-      onSubmit={(e) => {
-        e.preventDefault();
-        void submit();
-      }}
-    >
-      <textarea
-        ref={textareaRef}
-        className="flex-1 resize-none border-0 bg-transparent p-0 text-sm text-zinc-900 placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-0 min-h-12 max-h-32 overflow-y-auto leading-relaxed"
-        placeholder={placeholder}
-        value={draft}
-        onChange={(e) => {
-          setDraft(e.target.value);
-          requestAnimationFrame(resizeTextarea);
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            void submit();
-          }
-        }}
-        spellCheck={false}
-      />
-      <button
-        type="submit"
-        disabled={isLoading || !draft.trim()}
-        className="shrink-0 self-end h-8 w-8 rounded-full bg-zinc-900 hover:bg-zinc-700 disabled:bg-zinc-200 disabled:text-zinc-400 transition-colors inline-flex items-center justify-center"
-        aria-label="Send message"
-      >
-        {isLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
+    <ChatInput className="p-0 bg-transparent">
+      <ChatInput.Form className="relative flex items-end gap-2 rounded-3xl border border-zinc-200 bg-white px-4 py-3 shadow-sm focus-within:border-zinc-300 focus-within:shadow-md transition-shadow">
+        <ChatInput.Field
+          className="flex-1 resize-none border-0 bg-transparent p-0 text-sm text-zinc-900 placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0 min-h-0 h-auto max-h-32 overflow-y-auto leading-relaxed"
+          placeholder={placeholder}
+        />
+        <ChatInput.Submit className="static bottom-auto right-auto shrink-0 self-end h-8 w-8 rounded-full bg-zinc-900 hover:bg-zinc-700 disabled:bg-zinc-200 disabled:text-zinc-400 transition-colors">
           <ArrowUp className="h-4 w-4" />
-        )}
-      </button>
-    </form>
+        </ChatInput.Submit>
+      </ChatInput.Form>
+    </ChatInput>
   );
 }
 
