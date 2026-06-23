@@ -1,21 +1,22 @@
 import type { NextConfig } from "next";
+import { getHopsworksPublicBasePath } from "./lib/hopsworks-public-path";
 
-// NEXT_PUBLIC_BASE_PATH must be set WITHOUT a leading slash, e.g.
-// hopsworks-api/pythonappp/g2/testagentapp
-// With no leading slash the browser resolves asset URLs relative to the page
-// URL, which doubles the prefix. The proxy strips the first copy, and the
-// Next.js container serves the file at the remaining prefixed path (200).
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+// Hopsworks serves Python Apps under /hopsworks-api/pythonapp/{project}/{job}/.
+// Prefer an explicit NEXT_PUBLIC_BASE_PATH for local overrides, but fall back
+// to the injected HOPSWORKS_* vars so the deployed bundle is built with the
+// correct public mount automatically.
+const basePath = getHopsworksPublicBasePath();
 
 const nextConfig: NextConfig = {
   assetPrefix: basePath,
   async rewrites() {
     if (!basePath) return [];
-    // The proxy strips the prefix before forwarding, so the container receives
-    // GET /<basePath>/api/chat. Map that back to /api/chat.
+    // The browser reaches the app through the public Hopsworks mount. If the
+    // request arrives at Next with the public prefix intact, map it back to the
+    // internal /api/chat route.
     return [
       {
-        source: `/${basePath}/api/:path*`,
+        source: `${basePath}/api/:path*`,
         destination: "/api/:path*",
       },
     ];
