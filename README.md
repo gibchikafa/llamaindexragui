@@ -41,8 +41,11 @@ cp .env.example .env.local
 |---|---|
 | `LLAMA_INDEX_AGENT_DEPLOYMENT_URL` | Full URL of the RAG agent query endpoint |
 | `LLAMA_INDEX_AGENT_DEPLOYMENT_API_KEY` | Hopsworks API key (`Authorization: ApiKey <key>`) |
+| `NEXT_PUBLIC_BASE_PATH` | Subpath where the app is served (e.g. `/hopsworks-api/pythonappp/g2/myapp`). Leave empty for root. **Must be set at build time.** |
 
 `.env.local` is gitignored and never committed. In production (Docker, Kubernetes, etc.) set these as regular environment variables — `.env.local` is not required.
+
+> **Subpath deployments (Hopsworks / reverse proxy):** `NEXT_PUBLIC_BASE_PATH` is baked into the JavaScript bundle at build time. Set it before running `npm run build`, or pass it as a Docker build argument. Without it, the browser will request `/_next/static/…` from the origin root (not the subpath), the JS bundles will 404, React will not hydrate, and the send button will appear permanently disabled.
 
 Example `.env.local`:
 

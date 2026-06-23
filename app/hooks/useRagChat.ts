@@ -114,7 +114,7 @@ export function useRagChat(): RagChatReturn {
       setStatus("submitted");
 
       try {
-        const res = await fetch("/api/chat", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
